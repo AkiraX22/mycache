@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [asan, tsan, tidy]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build clang-tidy
+
+      # ThreadSanitizer can crash at startup with the kernel's default address
+      # randomization on recent Ubuntu images.
+      - name: Adjust address randomization for TSan
+        if: matrix.preset == 'tsan'
+        run: sudo sysctl vm.mmap_rnd_bits=28
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}

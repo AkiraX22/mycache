@@ -1,0 +1,11 @@
+Checks: >
+  -*,
+  bugprone-*,
+  performance-*,
+  modernize-*,
+  readability-container-size-empty,
+  readability-redundant-string-init,
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-trailing-return-type
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/src/.*'
